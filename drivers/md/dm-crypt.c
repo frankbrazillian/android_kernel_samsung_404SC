@@ -1761,6 +1761,7 @@ static int crypt_ctr(struct dm_target *ti, unsigned int argc, char **argv)
 	}
 
 	ret = -ENOMEM;
+<<<<<<< HEAD
 	if (cc->hw_fmp) {
 		cc->io_queue = alloc_workqueue("kcryptd_fmp_io",
 					       WQ_NON_REENTRANT|
@@ -1779,12 +1780,22 @@ static int crypt_ctr(struct dm_target *ti, unsigned int argc, char **argv)
 			ti->error = "Couldn't create kcryptd io queue";
 			goto bad;
 		}
+=======
+	cc->io_queue = alloc_workqueue("kcryptd_io",
+				       WQ_HIGHPRI |
+				       WQ_NON_REENTRANT|
+				       WQ_MEM_RECLAIM,
+				       1);
+	if (!cc->io_queue) {
+		ti->error = "Couldn't create kcryptd io queue";
+		goto bad;
+	}
+>>>>>>> f3afb655f... ANDROID: dm-crypt: run in a WQ_HIGHPRI workqueue
 
 		cc->crypt_queue = alloc_workqueue("kcryptd",
-					  WQ_NON_REENTRANT|
-					  WQ_CPU_INTENSIVE|
-					  WQ_MEM_RECLAIM,
-					  1);
+					  WQ_HIGHPRI |
+					  WQ_MEM_RECLAIM |
+					  WQ_UNBOUND, num_online_cpus());
 		if (!cc->crypt_queue) {
 			ti->error = "Couldn't create kcryptd queue";
 			goto bad;
