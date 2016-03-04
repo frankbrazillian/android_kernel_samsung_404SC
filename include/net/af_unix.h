@@ -6,8 +6,13 @@
 #include <linux/mutex.h>
 #include <net/sock.h>
 
+<<<<<<< HEAD
 void unix_inflight(struct user_struct *user, struct file *fp);
 void unix_notinflight(struct user_struct *user, struct file *fp);
+=======
+extern void unix_inflight(struct user_struct *user, struct file *fp);
+extern void unix_notinflight(struct user_struct *user, struct file *fp);
+>>>>>>> 7e3b794e3... Linux 3.10.99
 extern void unix_gc(void);
 extern void wait_for_unix_gc(void);
 extern struct sock *unix_get_socket(struct file *filp);
