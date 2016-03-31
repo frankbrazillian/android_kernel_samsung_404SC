@@ -56,14 +56,11 @@ C_h	.req	x12
 D_l	.req	x13
 D_h	.req	x14
 
-<<<<<<< HEAD
 ENTRY(memcpy)
-=======
 /* Local version of dstin */
 dst	.req	x3
 ENTRY(memcpy)
 	prfm    pldl1strm, [src, #(1*L1_CACHE_BYTES)]
->>>>>>> 03c26287b... arm64: lib: memory utilities optimization
 	mov	dst, dstin
 	cmp	count, #16
 	/*When memory length is less than 16, the accessed are not aligned.*/
@@ -148,12 +145,9 @@ ENTRY(memcpy)
 	ldrb	tmp1w, [src]
 	strb	tmp1w, [dst]
 
-<<<<<<< HEAD
-=======
 ENTRY(memcpy)
 	mov	dst, dstin
 #include "memcpy_base.h"
->>>>>>> 03c26287b... arm64: lib: memory utilities optimization
 .Lexitfunc:
 	ret
 
@@ -201,10 +195,7 @@ ENTRY(memcpy)
 	ldp	C_l, C_h, [src],#16
 	stp	D_l, D_h, [dst],#16
 	ldp	D_l, D_h, [src],#16
-<<<<<<< HEAD
-=======
 	prfm    pldl1strm, [src, #(4*L1_CACHE_BYTES)]
->>>>>>> 03c26287b... arm64: lib: memory utilities optimization
 	subs	count, count, #64
 	b.ge	1b
 	stp	A_l, A_h, [dst],#16
