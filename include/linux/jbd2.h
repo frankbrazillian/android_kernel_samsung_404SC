@@ -993,15 +993,12 @@ struct journal_s
 #define JBD2_ABORT_ON_SYNCDATA_ERR	0x040	/* Abort the journal on file
 						 * data write error in ordered
 						 * mode */
-<<<<<<< HEAD
 #ifdef CONFIG_JOURNAL_DATA_TAG
 #define JBD2_JOURNAL_TAG	0x800	/* Journaling is working in journal */
                                         /* data tagging mode */
 #endif
 
-=======
 #define JBD2_REC_ERR	0x080	/* The errno in the sb has been recorded */
->>>>>>> dd8a0e8b5... Linux 3.10.61 to Linux 3.10.96
 
 /*
  * Function declarations for the journaling transaction and buffer

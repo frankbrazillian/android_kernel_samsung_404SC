@@ -93,11 +93,8 @@ static size_t buffer_start_add_locked(struct persistent_ram_zone *prz, size_t a)
 
 	old = atomic_read(&prz->buffer->start);
 	new = old + a;
-<<<<<<< HEAD
 	while (unlikely(new >= prz->buffer_size))
-=======
 	while (unlikely(new > prz->buffer_size))
->>>>>>> dd8a0e8b5... Linux 3.10.61 to Linux 3.10.96
 		new -= prz->buffer_size;
 	atomic_set(&prz->buffer->start, new);
 

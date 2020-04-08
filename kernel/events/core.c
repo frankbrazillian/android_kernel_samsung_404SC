@@ -4752,7 +4752,7 @@ exit:
  */
 
 struct perf_read_event {
-	struct perf_event_header	header;
+	struct perf_event_header header;
 
 	u32				pid;
 	u32				tid;
@@ -7071,12 +7071,8 @@ SYSCALL_DEFINE5(perf_event_open,
 		 * the old lists, before installing it on new lists.
 		 */
 		synchronize_rcu();
-<<<<<<< HEAD
-
 		perf_install_in_context(ctx, group_leader, event->cpu);
-=======
 		perf_install_in_context(ctx, group_leader, group_leader->cpu);
->>>>>>> dd8a0e8b5... Linux 3.10.61 to Linux 3.10.96
 		get_ctx(ctx);
 		list_for_each_entry(sibling, &group_leader->sibling_list,
 				    group_entry) {

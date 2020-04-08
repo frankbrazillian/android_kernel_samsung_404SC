@@ -677,10 +677,7 @@ struct user_struct {
 #endif
 	unsigned long locked_shm; /* How many pages of mlocked shm ? */
 	unsigned long unix_inflight;	/* How many files in flight in unix sockets */
-<<<<<<< HEAD
 	atomic_long_t pipe_bufs;  /* how many pages are allocated in pipe buffers */
-=======
->>>>>>> dd8a0e8b5... Linux 3.10.61 to Linux 3.10.96
 
 #ifdef CONFIG_KEYS
 	struct key *uid_keyring;	/* UID specific keyring */

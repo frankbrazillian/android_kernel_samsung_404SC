@@ -625,14 +625,12 @@ void __ext4_abort(struct super_block *sb, const char *function,
 			jbd2_journal_abort(EXT4_SB(sb)->s_journal, -EIO);
 		save_error_info(sb, function, line);
 	}
-<<<<<<< HEAD
+
 	if (test_opt(sb, ERRORS_PANIC) && !ignore_fs_panic)
-=======
 	if (test_opt(sb, ERRORS_PANIC)) {
 		if (EXT4_SB(sb)->s_journal &&
 		  !(EXT4_SB(sb)->s_journal->j_flags & JBD2_REC_ERR))
 			return;
->>>>>>> dd8a0e8b5... Linux 3.10.61 to Linux 3.10.96
 		panic("EXT4-fs panic from previous error\n");
 	}
 }
