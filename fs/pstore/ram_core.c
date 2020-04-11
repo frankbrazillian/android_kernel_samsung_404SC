@@ -394,15 +394,11 @@ static void *persistent_ram_vmap(phys_addr_t start, size_t size,
 	page_start = start - offset_in_page(start);
 	page_count = DIV_ROUND_UP(size + offset_in_page(start), PAGE_SIZE);
 
-<<<<<<< HEAD
 #ifndef CONFIG_EXYNOS_SNAPSHOT_PSTORE
-=======
->>>>>>> dd8a0e8b5... Linux 3.10.61 to Linux 3.10.96
 	if (memtype)
 		prot = pgprot_noncached(PAGE_KERNEL);
 	else
-		prot = pgprot_writecombine(PAGE_KERNEL);
-<<<<<<< HEAD
+		prot = pgprot_writecombine(PAGE_KERNEL)
 #else
 	/*
 	 * If using exynos-snapshot, we can get the debug information
@@ -412,10 +408,8 @@ static void *persistent_ram_vmap(phys_addr_t start, size_t size,
 	prot = PAGE_KERNEL;
 #endif
 	pages = kmalloc_array(page_count, sizeof(struct page *), GFP_KERNEL);
-=======
 
 	pages = kmalloc(sizeof(struct page *) * page_count, GFP_KERNEL);
->>>>>>> dd8a0e8b5... Linux 3.10.61 to Linux 3.10.96
 	if (!pages) {
 		pr_err("%s: Failed to allocate array for %u pages\n",
 		       __func__, page_count);

@@ -752,11 +752,8 @@ can_read_key:
 		down_read(&key->sem);
 		ret = key_validate(key);
 		if (ret == 0)
-<<<<<<< HEAD
  			ret = key->type->read(key, buffer, buflen);
-=======
 			ret = key->type->read(key, buffer, buflen);
->>>>>>> dd8a0e8b5... Linux 3.10.61 to Linux 3.10.96
 		up_read(&key->sem);
 	}
 

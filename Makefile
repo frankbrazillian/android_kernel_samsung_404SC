@@ -4,6 +4,12 @@ SUBLEVEL = 100
 EXTRAVERSION =
 NAME = TOSSUG Baby Fish
 
+TOOLCHAIN_DIR =/home/brazillian/aarch64-linux-gnu-linaro7.5/bin/aarch64-linux-gnu-
+
+ifdef CONFIG_WITH_CCACHE
+ccache := ccache
+endif
+
 # *DOCUMENTATION*
 # To see a list of typical targets execute "make help"
 # More info can be located in ./README
@@ -193,7 +199,7 @@ SUBARCH := $(shell uname -m | sed -e s/i.86/x86/ -e s/x86_64/x86/ \
 # Default value for CROSS_COMPILE is not to prefix executables
 # Note: Some architectures assign CROSS_COMPILE in their arch/*/Makefile
 ARCH            ?= arm64
-CROSS_COMPILE   ?= $(CONFIG_CROSS_COMPILE:"%"=%)
+CROSS_COMPILE   ?= /home/brazillian/aarch64-linux-gnu-linaro4.9.4/bin/aarch64-linux-gnu-
 
 # Architecture as present in compile.h
 UTS_MACHINE 	:= $(ARCH)
@@ -611,6 +617,9 @@ KBUILD_CFLAGS	+= -O2 $(call cc-disable-warning,maybe-uninitialized,)
 endif
 
 include $(srctree)/arch/$(SRCARCH)/Makefile
+
+# Tell gcc to never replace conditional load with a non-conditional one
+KBUILD_CFLAGS	+= $(call cc-option,--param=allow-store-data-races=0)
 
 ifdef CONFIG_READABLE_ASM
 # Disable optimizations that make assembler listings hard to read.
