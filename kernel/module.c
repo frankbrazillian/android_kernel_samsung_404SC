@@ -1,17 +1,17 @@
 /*
    Copyright (C) 2002 Richard Henderson
    Copyright (C) 2001 Rusty Russell, 2002, 2010 Rusty Russell IBM.
-
+   
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
     the Free Software Foundation; either version 2 of the License, or
     (at your option) any later version.
-
+    
     This program is distributed in the hope that it will be useful,
     but WITHOUT ANY WARRANTY; without even the implied warranty of
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
     GNU General Public License for more details.
-
+    
     You should have received a copy of the GNU General Public License
     along with this program; if not, write to the Free Software
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
@@ -153,6 +153,7 @@ typedef enum {
 
 #define HASH_SIZE 20
 #define TIMA_SIGN_LEN 256	/* the rsa signature length of lkm_sec_info */
+#define BOOTMODE_RECOVERY 2	/* bootmode in ATAG_CMDLINE for recovery mode */
 
 uint8_t *tci = NULL;
 uint8_t *drv_tci = NULL;
@@ -160,6 +161,15 @@ uint8_t lkmauth_tl_loaded = 0;
 uint8_t lkm_sec_info_loaded = 0;
 struct mc_session_handle mchandle;
 struct mc_session_handle drv_mchandle;
+
+unsigned int lkmauth_bootmode;
+static int __init lkmauth_bootmode_setup(char *str)
+{
+	get_option(&str, &lkmauth_bootmode);
+	return 1;
+}
+
+__setup("bootmode=", lkmauth_bootmode_setup);
 
 #endif /* End TIMA_ON_MC20 */
 
@@ -175,6 +185,7 @@ typedef struct lkmauth_hash_s {
 	uint32_t cmd_id;
 	uint32_t hash_buf_start;	/* starting address of buf for ko hashes */
 	uint32_t hash_buf_len;	/* length of hash buf, should be multiples of 20 bytes */
+	uint8_t ko_num;		/* total number ko */
 } __attribute__ ((packed)) lkmauth_hash_t;
 
 typedef struct lkmauth_req_s {
@@ -2868,6 +2879,7 @@ static int lkmauth(Elf_Ehdr * hdr, int len)
 		 */
 		khashreq->hash_buf_start = (uint32_t) map_info.secure_virt_addr;
 		khashreq->hash_buf_len = buf_len;
+		khashreq->ko_num = (buf_len - TIMA_SIGN_LEN) / HASH_SIZE;	/* calculate the the ko number */
 
 		/* prepare the response buffer */
 		krsp = (struct lkmauth_rsp_s *)tci;
@@ -3157,14 +3169,14 @@ static int elf_header_check(struct load_info *info)
 		return -ENOEXEC;
 
 #ifdef TIMA_LKM_AUTH_ENABLED
-	if (lkmauth(info->hdr, info->len) != RET_LKMAUTH_SUCCESS) {
+	if (lkmauth_bootmode != BOOTMODE_RECOVERY &&
+	    lkmauth(info->hdr, info->len) != RET_LKMAUTH_SUCCESS) {
 		pr_err
 		    ("TIMA: lkmauth--unable to load kernel module; module len is %lu.\n",
 		     info->len);
 		return -ENOEXEC;
 	}
-#endif
-
+#endif		
 return 0;
 }
 
@@ -4255,16 +4267,6 @@ static const char *get_ksymbol(struct module *mod,
 
 		/* We ignore unnamed symbols: they're uninformative
 		 * and inserted at a whim. */
-		if (mod->symtab[i].st_value <= addr
-		    && mod->symtab[i].st_value > mod->symtab[best].st_value
-		    && *(mod->strtab + mod->symtab[i].st_name) != '\0'
-		    && !is_arm_mapping_symbol(mod->strtab + mod->symtab[i].st_name))
-			best = i;
-		if (mod->symtab[i].st_value > addr
-		    && mod->symtab[i].st_value < nextval
-		    && *(mod->strtab + mod->symtab[i].st_name) != '\0'
-		    && !is_arm_mapping_symbol(mod->strtab + mod->symtab[i].st_name))
-			nextval = mod->symtab[i].st_value;
 		if (*symname(kallsyms, i) == '\0'
 		    || is_arm_mapping_symbol(symname(kallsyms, i)))
 			continue;
@@ -4283,8 +4285,6 @@ static const char *get_ksymbol(struct module *mod,
 	if (size)
 		*size = nextval - kallsyms->symtab[best].st_value;
 	if (offset)
-		*offset = addr - mod->symtab[best].st_value;
-	return mod->strtab + mod->symtab[best].st_name;
 		*offset = addr - kallsyms->symtab[best].st_value;
 	return symname(kallsyms, best);
 }
@@ -4386,11 +4386,6 @@ int module_get_kallsym(unsigned int symnum, unsigned long *value, char *type,
 
 		if (mod->state == MODULE_STATE_UNFORMED)
 			continue;
-		if (symnum < mod->num_symtab) {
-			*value = mod->symtab[symnum].st_value;
-			*type = mod->symtab[symnum].st_info;
-			strlcpy(name, mod->strtab + mod->symtab[symnum].st_name,
-				KSYM_NAME_LEN);
 		kallsyms = rcu_dereference_sched(mod->kallsyms);
 		if (symnum < kallsyms->num_symtab) {
 			*value = kallsyms->symtab[symnum].st_value;
@@ -4412,10 +4407,6 @@ static unsigned long mod_find_symname(struct module *mod, const char *name)
 	unsigned int i;
 	struct mod_kallsyms *kallsyms = rcu_dereference_sched(mod->kallsyms);
 
-	for (i = 0; i < mod->num_symtab; i++)
-		if (strcmp(name, mod->strtab+mod->symtab[i].st_name) == 0 &&
-		    mod->symtab[i].st_info != 'U')
-			return mod->symtab[i].st_value;
 	for (i = 0; i < kallsyms->num_symtab; i++)
 		if (strcmp(name, symname(kallsyms, i)) == 0 &&
 		    kallsyms->symtab[i].st_info != 'U')
@@ -4463,9 +4454,6 @@ int module_kallsyms_on_each_symbol(int (*fn)(void *, const char *,
 
 		if (mod->state == MODULE_STATE_UNFORMED)
 			continue;
-		for (i = 0; i < mod->num_symtab; i++) {
-			ret = fn(data, mod->strtab + mod->symtab[i].st_name,
-				 mod, mod->symtab[i].st_value);
 		for (i = 0; i < kallsyms->num_symtab; i++) {
 			ret = fn(data, symname(kallsyms, i),
 				 mod, kallsyms->symtab[i].st_value);
@@ -4548,7 +4536,6 @@ static int m_show(struct seq_file *m, void *p)
 }
 
 /* Format: modulename size refcount deps address
-
    Where refcount is a number or -, and deps is a comma-separated list
    of depends or -.
 */
