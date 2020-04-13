@@ -35,7 +35,7 @@
 #define S_SYSCALLNO 280 /* offsetof(struct pt_regs, syscallno)	// */
 #define S_FRAME_SIZE 288 /* sizeof(struct pt_regs)	// */
 
-#define MM_CONTEXT_ID 704 /* offsetof(struct mm_struct, context.id)	// */
+#define MM_CONTEXT_ID 720 /* offsetof(struct mm_struct, context.id)	// */
 
 #define VMA_VM_MM 64 /* offsetof(struct vm_area_struct, vm_mm)	// */
 #define VMA_VM_FLAGS 80 /* offsetof(struct vm_area_struct, vm_flags)	// */

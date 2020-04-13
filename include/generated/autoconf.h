@@ -1,7 +1,7 @@
 /*
  *
  * Automatically generated file; DO NOT EDIT.
- * Linux/arm64 3.10.103 Kernel Configuration
+ * Linux/arm64 3.10.105 Kernel Configuration
  *
  */
 #define CONFIG_RING_BUFFER 1
@@ -14,6 +14,7 @@
 #define CONFIG_ESOC_DEV 1
 #define CONFIG_DIRECT_RECLAIM_FILE_PAGES_ONLY 1
 #define CONFIG_MEMORY_ISOLATION 1
+#define CONFIG_SLUB_CPU_PARTIAL 1
 #define CONFIG_RFS_ACCEL 1
 #define CONFIG_IP_NF_TARGET_REDIRECT 1
 #define CONFIG_CRC32 1
